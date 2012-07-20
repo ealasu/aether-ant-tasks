@@ -310,6 +310,11 @@ public class Resolve
             return classifier;
         }
 
+        public void setClassifier( String classifier )
+        {
+            this.classifier = classifier;
+        }
+
         public void setAttachments( String attachments )
         {
             if ( "sources".equals( attachments ) )

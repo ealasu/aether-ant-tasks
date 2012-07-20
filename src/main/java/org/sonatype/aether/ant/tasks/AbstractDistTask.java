@@ -76,7 +76,7 @@ public abstract class AbstractDistTask
             throw new BuildException( "You must specify the <pom file=\"...\"> element"
                 + " to denote the descriptor for the artifacts" );
         }
-        if ( pom.getFile() == null )
+        if ( pom.getFile() == null && deployPom )
         {
             throw new BuildException( "You must specify a <pom> element that has the 'file' attribute set" );
         }
@@ -117,20 +117,26 @@ public abstract class AbstractDistTask
     protected List<org.sonatype.aether.artifact.Artifact> toArtifacts( RepositorySystemSession session )
     {
         Model model = getPom().getModel( this );
-        File pomFile = getPom().getFile();
+
+        String groupId = model != null ? model.getGroupId() : getPom().getGroupId();
+        String artifactId = model != null ? model.getArtifactId() : getPom().getArtifactId();
+        String version = model != null ? model.getVersion() : getPom().getVersion();
 
         List<org.sonatype.aether.artifact.Artifact> results = new ArrayList<org.sonatype.aether.artifact.Artifact>();
 
-        org.sonatype.aether.artifact.Artifact pomArtifact =
+        if (deployPom)
+        {
+          File pomFile = getPom().getFile();
+          org.sonatype.aether.artifact.Artifact pomArtifact =
             new DefaultArtifact( model.getGroupId(), model.getArtifactId(), "pom", model.getVersion() ).setFile( pomFile );
-
-        if (deployPom) results.add( pomArtifact );
+          results.add( pomArtifact );
+        }
 
         for ( Artifact artifact : getArtifacts().getArtifacts() )
         {
             org.sonatype.aether.artifact.Artifact buildArtifact =
-                new DefaultArtifact( model.getGroupId(), model.getArtifactId(), artifact.getClassifier(),
-                                     artifact.getType(), model.getVersion() ).setFile( artifact.getFile() );
+                new DefaultArtifact( groupId, artifactId, artifact.getClassifier(),
+                                     artifact.getType(), version ).setFile( artifact.getFile() );
             results.add( buildArtifact );
         }
 
