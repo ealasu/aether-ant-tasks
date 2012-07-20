@@ -34,6 +34,7 @@ public abstract class AbstractDistTask
 {
 
     private Pom pom;
+    private boolean deployPom = true;
 
     private Artifacts artifacts;
 
@@ -122,7 +123,8 @@ public abstract class AbstractDistTask
 
         org.sonatype.aether.artifact.Artifact pomArtifact =
             new DefaultArtifact( model.getGroupId(), model.getArtifactId(), "pom", model.getVersion() ).setFile( pomFile );
-        results.add( pomArtifact );
+
+        if (deployPom) results.add( pomArtifact );
 
         for ( Artifact artifact : getArtifacts().getArtifacts() )
         {
@@ -191,6 +193,16 @@ public abstract class AbstractDistTask
         pom = new Pom();
         pom.setProject( getProject() );
         pom.setRefid( ref );
+    }
+
+    public void setDeployPom( boolean deployPom )
+    {
+        this.deployPom = deployPom;
+    }
+
+    public boolean getDeployPom()
+    {
+        return this.deployPom;
     }
 
 }
